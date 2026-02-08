@@ -282,7 +282,12 @@ with st.sidebar:
     for log in st.session_state.logs:
         st.caption(log)
 
+
 # --- METRICS ---
+# ALWAYS recalculate risk score before display (even when paused)
+st.session_state.risk_score = calculate_risk_score(st.session_state.active_companies, st.session_state.ccp_stress)
+st.session_state.global_margin = calculate_global_margin(st.session_state.risk_score)
+
 m1, m2, m3, m4 = st.columns(4)
 
 # Determine if intervention is required based on crisis events
@@ -290,10 +295,15 @@ has_alert = any(c.get('ai_alert') for c in st.session_state.active_companies)
 has_default = any("DEFAULT" in c.get('status', '') for c in st.session_state.active_companies)
 needs_intervention = has_alert or has_default or st.session_state.ccp_stress > 0
 
+# Get market sentiment for display
+market_sentiment = get_market_sentiment(st.session_state.risk_score)
+
 with m1: st.metric("System Status", "Intervention Req" if needs_intervention else "Normal")
-with m2: st.metric("Active Entities", len(st.session_state.active_companies) + 4)
+with m2: st.metric("Market Sentiment", market_sentiment)
 with m3: st.metric("Global Margin", f"{st.session_state.global_margin}%")
 with m4: st.metric("Risk Score", f"{st.session_state.risk_score}/10")
+
+
 
 # --- MAIN CONTENT ---
 col_graph, col_monitor = st.columns([1.5, 2])
@@ -356,6 +366,9 @@ with col_monitor:
                     comp['status'] = "DEFAULTED"
                     comp['news'] = "CRITICAL: Default triggered."
                     comp['collateral'] = round(comp['exposure'] * random.uniform(0.6, 0.8), 2)
+                    # IMMEDIATELY UPDATE RISK SCORE
+                    st.session_state.risk_score = calculate_risk_score(st.session_state.active_companies, st.session_state.ccp_stress)
+                    st.session_state.global_margin = calculate_global_margin(st.session_state.risk_score)
                     st.rerun()
 
             # RECOVERY (Use default type which is styled GREEN via CSS)
@@ -376,6 +389,9 @@ with col_monitor:
                         comp['status'] = "SAFE (RECOVERED)"
                     
                     comp['ai_alert'] = False
+                    # IMMEDIATELY UPDATE RISK SCORE
+                    st.session_state.risk_score = calculate_risk_score(st.session_state.active_companies, st.session_state.ccp_stress)
+                    st.session_state.global_margin = calculate_global_margin(st.session_state.risk_score)
                     st.rerun()
 
     st.markdown('</div>', unsafe_allow_html=True)
