@@ -1,0 +1,84 @@
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <!-- Vis Network -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.css"/>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #F3F6EE;
+      overflow: hidden;
+      font-family: Poppins, sans-serif;
+    }
+
+    #mynetwork {
+      width: 100%;
+      height: 520px;
+      background-color: #F3F6EE;
+      border: none !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ✅ ONLY NETWORK CONTAINER -->
+  <div id="mynetwork"></div>
+
+  <script type="text/javascript">
+    var nodes = new vis.DataSet([
+      {"id":"Citigroup","label":"Citigroup","shape":"dot","size":38,"color":"#D6A84A"},
+      {"id":"JPMorgan Chase","label":"JPMorgan Chase","shape":"dot","size":38,"color":"#D6A84A"}
+    ]);
+
+    var edges = new vis.DataSet([
+      {"from":"Citigroup","to":"JPMorgan Chase","width":2,"color":"#A8B89A"}
+    ]);
+
+    var container = document.getElementById("mynetwork");
+
+    var data = {
+      nodes: nodes,
+      edges: edges
+    };
+
+    var options = {
+      interaction: {
+        hover: true,
+        zoomView: false,
+        navigationButtons: true
+      },
+      physics: {
+        enabled: false
+      },
+      nodes: {
+        borderWidth: 0,
+        font: {
+          size: 13,
+          color: "#1A1A1A",
+          face: "Poppins"
+        }
+      },
+      edges: {
+        smooth: {
+          type: "dynamic"
+        },
+        color: {
+          color: "#A8B89A",
+          highlight: "#214D3A",
+          hover: "#214D3A"
+        }
+      }
+    };
+
+    new vis.Network(container, data, options);
+  </script>
+
+</body>
+</html>
