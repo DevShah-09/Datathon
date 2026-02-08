@@ -34,7 +34,7 @@
              #mynetwork {
                  width: 100%;
                  height: 400px;
-                 background-color: #F5F2E7;
+                 background-color: #edf6f9;
                  border: 1px solid lightgray;
                  position: relative;
                  float: left;
@@ -88,8 +88,8 @@
                   
 
                   // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "#E67E22", "font": {"color": "#2C231E"}, "id": "Bank A", "label": "Bank A", "shape": "dot", "size": 20}, {"color": "#E67E22", "font": {"color": "#2C231E"}, "id": "Bank B", "label": "Bank B", "shape": "dot", "size": 20}, {"color": "#E67E22", "font": {"color": "#2C231E"}, "id": "Bank C", "label": "Bank C", "shape": "dot", "size": 20}, {"color": "#E67E22", "font": {"color": "#2C231E"}, "id": "Bank D", "label": "Bank D", "shape": "dot", "size": 20}, {"color": "#E74C3C", "font": {"color": "#2C231E"}, "id": "Constructo", "label": "Constructo", "shape": "dot", "size": 18}, {"color": "#27AE60", "font": {"color": "#2C231E"}, "id": "AutoMotive X", "label": "AutoMotive X", "shape": "dot", "size": 18}, {"color": "#27AE60", "font": {"color": "#2C231E"}, "id": "CyberDyne", "label": "CyberDyne", "shape": "dot", "size": 18}, {"color": "#27AE60", "font": {"color": "#2C231E"}, "id": "AgriGrow", "label": "AgriGrow", "shape": "dot", "size": 18}]);
-                  edges = new vis.DataSet([{"from": "Bank B", "to": "Constructo"}, {"from": "Bank B", "to": "AutoMotive X"}, {"from": "Bank A", "to": "CyberDyne"}, {"from": "Bank A", "to": "AgriGrow"}]);
+                  nodes = new vis.DataSet([{"color": "#E67E22", "font": {"color": "#2C231E"}, "id": "Bank A", "label": "Bank A", "shape": "dot", "size": 20}, {"color": "#E67E22", "font": {"color": "#2C231E"}, "id": "Bank B", "label": "Bank B", "shape": "dot", "size": 20}, {"color": "#E67E22", "font": {"color": "#2C231E"}, "id": "Bank C", "label": "Bank C", "shape": "dot", "size": 20}, {"color": "#E67E22", "font": {"color": "#2C231E"}, "id": "Bank D", "label": "Bank D", "shape": "dot", "size": 20}, {"color": "#27AE60", "font": {"color": "#2C231E"}, "id": "QuantumSoft", "label": "QuantumSoft", "shape": "dot", "size": 18}, {"color": "#27AE60", "font": {"color": "#2C231E"}, "id": "AgriGrow", "label": "AgriGrow", "shape": "dot", "size": 18}, {"color": "#27AE60", "font": {"color": "#2C231E"}, "id": "MediaGiant", "label": "MediaGiant", "shape": "dot", "size": 18}, {"color": "#27AE60", "font": {"color": "#2C231E"}, "id": "EcoPower", "label": "EcoPower", "shape": "dot", "size": 18}]);
+                  edges = new vis.DataSet([{"from": "Bank B", "to": "QuantumSoft"}, {"from": "Bank C", "to": "AgriGrow"}, {"from": "Bank C", "to": "MediaGiant"}, {"from": "Bank D", "to": "EcoPower"}]);
 
                   nodeColors = {};
                   allNodes = nodes.get({ returnType: "Object" });
