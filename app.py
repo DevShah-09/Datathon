@@ -209,7 +209,7 @@ def generate_healthy_transaction(active_companies):
 # SESSION STATE INIT
 # ======================================================
 for key, default in [('iteration', 0), ('logs', []), ('show_payoffs', False), 
-                     ('is_playing', False), ('ccp_stress', 0), 
+                     ('show_ccp_funds', False), ('is_playing', False), ('ccp_stress', 0), 
                      ('risk_score', 1.0), ('global_margin', 10.0)]:
     if key not in st.session_state:
         st.session_state[key] = default
@@ -271,6 +271,10 @@ with st.sidebar:
     
     if st.button("View Payoffs", use_container_width=True):
         st.session_state.show_payoffs = not st.session_state.show_payoffs
+        st.rerun()
+    
+    if st.button("CCP Funds", use_container_width=True):
+        st.session_state.show_ccp_funds = not st.session_state.show_ccp_funds
         st.rerun()
     
     c1, c2 = st.columns(2)
@@ -384,6 +388,15 @@ with col_monitor:
                         comp['news'] = f"RECOVERED: Margin + Assets + Fund (₹{round(gap,2)} Cr) covered debt."
                         comp['status'] = "SAFE (CCP FUND USED)"
                         st.session_state.ccp_stress += 1
+                        
+                        # UPDATE CCP FUNDS
+                        st.session_state.ccp.cash_waterfall -= gap
+                        st.session_state.ccp.allotment_log.append({
+                            'target_bank': 'Lender Consortium',
+                            'failed_bank': comp['name'],
+                            'allotment': gap,
+                            'status': 'Fully Protected'
+                        })
                     else:
                         comp['news'] = "RECOVERED: Margin + Assets were sufficient."
                         comp['status'] = "SAFE (RECOVERED)"
@@ -445,3 +458,51 @@ if st.session_state.show_payoffs:
         st.markdown(html_structure, unsafe_allow_html=True)
     else:
         st.info("No data available.")
+
+# --- CCP FUNDS DISPLAY ---
+if st.session_state.show_ccp_funds:
+    st.divider()
+    st.markdown("### 🏦 CCP Fund Status")
+    
+    # Get CCP data
+    ccp = st.session_state.ccp
+    initial_fund = 50000  # Initial $50B
+    current_fund = ccp.cash_waterfall
+    used_fund = initial_fund - current_fund
+    utilization_pct = (used_fund / initial_fund) * 100
+    
+    # Display fund metrics
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("💰 Cash Waterfall", f"${current_fund:,.0f}M")
+    with col2:
+        st.metric("📊 Fund Utilization", f"{utilization_pct:.1f}%")
+    with col3:
+        st.metric("🚨 Total Interventions", st.session_state.ccp_stress)
+    with col4:
+        st.metric("💸 Funds Deployed", f"${used_fund:,.0f}M")
+    
+    # Display allotment history if available
+    if ccp.allotment_log:
+        st.markdown("#### 📋 Intervention History")
+        
+        allotment_rows = ""
+        for i, event in enumerate(reversed(ccp.allotment_log[-10:])):  # Show last 10 events
+            status_color = "#27AE60" if event['status'] == 'Fully Protected' else "#f4a261"
+            allotment_rows += f"<tr><td><b>#{len(ccp.allotment_log) - i}</b></td><td>{event['failed_bank']}</td><td>{event['target_bank']}</td><td style='font-weight:800; color:#adc178;'>${event['allotment']:,.2f}M</td><td><span class='status-badge' style='background:{status_color}; color:white;'>{event['status']}</span></td></tr>"
+        
+        allotment_table = f"""<div class="payoff-table-container"><table class="payoff-table"><thead><tr><th>#</th><th>Failed Entity</th><th>Protected Entity</th><th>CCP Allotment</th><th>Status</th></tr></thead><tbody>{allotment_rows}</tbody></table></div>"""
+        st.markdown(allotment_table, unsafe_allow_html=True)
+    else:
+        st.info("No CCP interventions yet. The fund remains at full capacity.")
+    
+    # Fund health indicator
+    st.markdown("#### 🎯 Fund Health")
+    if utilization_pct < 20:
+        st.success(f"✅ **HEALTHY** - CCP fund is at {100-utilization_pct:.1f}% capacity. System can absorb significant losses.")
+    elif utilization_pct < 50:
+        st.warning(f"⚠️ **MODERATE** - CCP fund is at {100-utilization_pct:.1f}% capacity. Monitor for additional stress.")
+    elif utilization_pct < 80:
+        st.warning(f"🟠 **STRESSED** - CCP fund is at {100-utilization_pct:.1f}% capacity. Limited buffer remaining.")
+    else:
+        st.error(f"🚨 **CRITICAL** - CCP fund is at {100-utilization_pct:.1f}% capacity. System at risk of failure!")
